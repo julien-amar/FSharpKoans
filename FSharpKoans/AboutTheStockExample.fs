@@ -58,8 +58,30 @@ module ``about the stock example`` =
     // tests for yourself along the way. You can also try 
     // using the F# Interactive window to check your progress.
 
+    let splitCommas (x:string) =
+        x.Split([|','|])
+
+    let parseQuotationValue (x:string) =
+        System.Double.Parse (x, System.Globalization.CultureInfo.InvariantCulture)
+
+    type Quotation = {
+        Date: string
+        Open: float
+        Close: float
+    }
+
     [<Koan>]
     let YouGotTheAnswerCorrect() =
-        let result =  __
+        let result =
+            stockData
+            |> Seq.skip 1 // Header
+            |> Seq.map (fun line -> splitCommas line)
+            |> Seq.map (fun rawData -> {
+                Date = rawData.[0]
+                Open = parseQuotationValue rawData.[1]
+                Close = parseQuotationValue rawData.[6]
+            })
+            |> Seq.maxBy (fun quotation -> abs (quotation.Open - quotation.Close))
+            |> (fun quotation -> quotation.Date)
         
         AssertEquality "2012-03-13" result
